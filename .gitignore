@@ -1,0 +1,110 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.so
+
+# Virtual environments
+.env
+.venv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyInstaller
+*.spec
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# =========================
+# Django / DRF specific
+# =========================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static/
+__pycache__/
+
+# Django migrations
+**/migrations/__pycache__/
+**/migrations/*.py[cod]
+# (nếu bạn muốn commit migration thì bỏ dòng dưới)
+**/migrations/*.py
+
+# =========================
+# Environment
+# =========================
+.env.local
+.env.development
+.env.production
+.env.docker
+*.env
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# =========================
+# Docker
+# =========================
+*.pid
+*.seed
+*.cover
+docker-compose.override.yml
+docker-compose.local.yml
+
+# =========================
+# Tests / Coverage
+# =========================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# =========================
+# Others
+# =========================
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+*.tmp
