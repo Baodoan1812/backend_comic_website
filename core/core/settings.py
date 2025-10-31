@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
     'comics',
+    'comments',
 ]
 AUTH_USER_MODEL = 'users.User'
 REST_FRAMEWORK = {
