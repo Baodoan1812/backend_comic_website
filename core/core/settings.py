@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'comics',
     'comments',
     'chapters',
+    'chat'
 ]
 AUTH_USER_MODEL = 'users.User'
 REST_FRAMEWORK = {

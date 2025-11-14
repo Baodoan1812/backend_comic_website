@@ -61,7 +61,8 @@ class ComicCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         data = request.data
         user = request.user.id
-
+        author = data.get('author', '')
+        genre= data.get('genre', '')
         title = data.get('title')
         description = data.get('description', '')
         read_count = 0
@@ -71,6 +72,8 @@ class ComicCreateView(generics.CreateAPIView):
         comic = Comic.objects.create(
             title=title,
             description=description,
+            author=author,
+            genre=genre,
             created_by_id=user,
             cover_image=cover_image
         )
@@ -102,30 +105,39 @@ class ComicUpdateView(generics.UpdateAPIView):
     serializer_class = ComicSerializer
     lookup_field = "id"
 
-    def update(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         comic_id = kwargs.get("id")
         data = request.data
 
+        if not data:
+            return Response({"error": "No data provided"}, status=400)
+
+        # Tạo danh sách cột và giá trị cần update
+        set_clauses = []
+        values = []
+        for field in ["title", "author", "genre", "description", "read_count"]:
+            if field in data:
+                set_clauses.append(f"{field}=%s")
+                values.append(data[field])
+
+        if not set_clauses:
+            return Response({"error": "No valid fields to update"}, status=400)
+
+        # Thêm updated_at
+        set_clauses.append("updated_at=CURRENT_TIMESTAMP")
+        sql_set = ", ".join(set_clauses)
+
         with connection.cursor() as cursor:
             cursor.execute(
-                f"""
-                UPDATE {TABLE_NAME}
-                SET title=%s, author=%s, status=%s, genre=%s, description=%s, updated_at=CURRENT_TIMESTAMP
-                WHERE id=%s
-                """,
-                [
-                    data.get("title"),
-                    data.get("author"),
-                    data.get("status"),
-                    data.get("genre"),
-                    data.get("description"),
-                    comic_id,
-                ],
+                f"UPDATE {TABLE_NAME} SET {sql_set} WHERE id=%s",
+                values + [comic_id]
             )
 
         comic = Comic.objects.get(pk=comic_id)
         serializer = self.get_serializer(comic)
         return Response(serializer.data)
+
+
 
 
 # --------------------- CHI TIẾT COMIC (SELECT ONE) ---------------------

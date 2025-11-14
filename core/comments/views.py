@@ -66,46 +66,31 @@ class CommentCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         user_id = request.user.id
         content = request.data.get("content")
-        comic_id = request.data.get("comic_id")  # có thể None
+        comic_id = request.data.get("comic_id")
 
-        # validate content bắt buộc, comic_id optional
-        if not content:
-            return Response({"error": "content is required"}, status=400)
+        # validate dữ liệu
+        if not content or not comic_id:
+            return Response({"error": "content and comic_id are required"}, status=400)
 
-        comic = None
-        if comic_id:  # nếu có comic_id mới kiểm tra tồn tại
-            try:
-                comic = Comic.objects.get(id=comic_id)
-            except Comic.DoesNotExist:
-                return Response({"error": "Comic not found"}, status=404)
+        try:
+            comic = Comic.objects.get(id=comic_id)
+        except Comic.DoesNotExist:
+            return Response({"error": "Comic not found"}, status=404)
 
         # INSERT
         with connection.cursor() as cursor:
-            if comic_id:  # có comic_id
-                cursor.execute(
-                    "INSERT INTO comments_comment (user_id, comic_id, content, created_at, updated_at) "
-                    "VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                    [user_id, comic_id, content]
-                )
-            else:  # không có comic_id
-                cursor.execute(
-                    "INSERT INTO comments_comment (user_id, content, created_at, updated_at) "
-                    "VALUES (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                    [user_id, content]
-                )
+            cursor.execute(
+                "INSERT INTO comments_comment (user_id, comic_id, content, created_at, updated_at) "
+                "VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                [user_id, comic_id, content]
+            )
 
-        # SELECT comment vừa tạo (lấy comment mới nhất của user)
+        # SELECT comment vừa tạo
         with connection.cursor() as cursor:
-            if comic_id:
-                cursor.execute(
-                    "SELECT * FROM comments_comment WHERE user_id = %s AND comic_id = %s ORDER BY id DESC LIMIT 1",
-                    [user_id, comic_id]
-                )
-            else:
-                cursor.execute(
-                    "SELECT * FROM comments_comment WHERE user_id = %s AND comic_id IS NULL ORDER BY id DESC LIMIT 1",
-                    [user_id]
-                )
+            cursor.execute(
+                "SELECT * FROM comments_comment WHERE user_id = %s AND comic_id = %s ORDER BY id DESC LIMIT 1",
+                [user_id, comic_id]
+            )
             row_data = cursor.fetchone()
             if not row_data:
                 return Response({"error": "Failed to create comment"}, status=500)
